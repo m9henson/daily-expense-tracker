@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="A fast, private daily expense tracker." />
+  <title>Daily Spend</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">PERSONAL EXPENSES</div>
+        <h1>Daily Spend</h1>
+      </div>
+      <button id="installBtn" class="icon-btn hidden" type="button" aria-label="Install app" title="Install app">＋</button>
+    </header>
+
+    <main>
+      <section id="homeView" class="view active" aria-label="Home">
+        <div class="month-row">
+          <button id="prevMonth" class="ghost-btn" type="button" aria-label="Previous month">‹</button>
+          <button id="monthLabel" class="month-label" type="button" title="Return to current month"></button>
+          <button id="nextMonth" class="ghost-btn" type="button" aria-label="Next month">›</button>
+        </div>
+
+        <section class="summary-grid">
+          <article class="summary-card emphasis">
+            <span>Spent today</span>
+            <strong id="todayTotal">$0.00</strong>
+          </article>
+          <article class="summary-card">
+            <span>This month</span>
+            <strong id="monthTotal">$0.00</strong>
+          </article>
+          <article class="summary-card">
+            <span>Budget left</span>
+            <strong id="budgetLeft">—</strong>
+          </article>
+        </section>
+
+        <section id="budgetProgressCard" class="card progress-card hidden">
+          <div class="row-between">
+            <div>
+              <div class="section-kicker">MONTHLY BUDGET</div>
+              <strong id="budgetProgressText">$0 of $0</strong>
+            </div>
+            <span id="budgetPercent" class="pill">0%</span>
+          </div>
+          <div class="progress-track"><div id="budgetProgressBar" class="progress-bar"></div></div>
+        </section>
+
+        <section class="card add-card">
+          <div class="row-between section-heading">
+            <div>
+              <div class="section-kicker">QUICK ENTRY</div>
+              <h2 id="formTitle">Add expense</h2>
+            </div>
+            <button id="cancelEditBtn" class="text-btn hidden" type="button">Cancel edit</button>
+          </div>
+
+          <form id="expenseForm" autocomplete="off">
+            <div class="amount-wrap">
+              <span class="currency">$</span>
+              <input id="amount" name="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required aria-label="Amount" />
+            </div>
+
+            <div class="category-grid" id="categoryGrid" role="radiogroup" aria-label="Category"></div>
+            <input id="category" name="category" type="hidden" required />
+
+            <div class="field-grid">
+              <label>
+                <span>Merchant</span>
+                <input id="merchant" name="merchant" type="text" maxlength="60" placeholder="Walmart, restaurant…" />
+              </label>
+              <label>
+                <span>Date</span>
+                <input id="date" name="date" type="date" required />
+              </label>
+            </div>
+
+            <label>
+              <span>Note <small>(optional)</small></span>
+              <input id="note" name="note" type="text" maxlength="100" placeholder="What was it for?" />
+            </label>
+
+            <button class="primary-btn" id="saveExpenseBtn" type="submit">Save expense</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="row-between section-heading">
+            <div>
+              <div class="section-kicker">AT A GLANCE</div>
+              <h2>Category spending</h2>
+            </div>
+          </div>
+          <div id="categorySummary" class="category-summary"></div>
+        </section>
+      </section>
+
+      <section id="historyView" class="view" aria-label="History">
+        <div class="page-heading">
+          <div class="section-kicker">TRANSACTIONS</div>
+          <h2>Expense history</h2>
+        </div>
+
+        <section class="card filters-card">
+          <div class="field-grid">
+            <label>
+              <span>Search</span>
+              <input id="historySearch" type="search" placeholder="Merchant or note" />
+            </label>
+            <label>
+              <span>Category</span>
+              <select id="historyCategory"></select>
+            </label>
+          </div>
+          <button id="clearFilters" class="secondary-btn" type="button">Clear filters</button>
+        </section>
+
+        <div id="historyList" class="history-list"></div>
+        <div id="historyEmpty" class="empty-state hidden">
+          <div class="empty-icon">🧾</div>
+          <h3>No expenses found</h3>
+          <p>Add an expense or clear your filters.</p>
+        </div>
+      </section>
+
+      <section id="budgetsView" class="view" aria-label="Budgets">
+        <div class="page-heading">
+          <div class="section-kicker">MONTHLY LIMITS</div>
+          <h2>Category budgets</h2>
+          <p>Set only the categories you want to budget. Leave the others at $0.</p>
+        </div>
+        <form id="budgetForm" class="card budget-form"></form>
+      </section>
+
+      <section id="settingsView" class="view" aria-label="Settings">
+        <div class="page-heading">
+          <div class="section-kicker">APP SETTINGS</div>
+          <h2>Settings</h2>
+        </div>
+
+        <section class="card settings-stack">
+          <div class="settings-row">
+            <div>
+              <h3>Data storage</h3>
+              <p id="storageStatus">Stored privately on this device.</p>
+            </div>
+            <span class="status-badge">Local</span>
+          </div>
+          <div class="settings-row">
+            <div>
+              <h3>Export expenses</h3>
+              <p>Download all entries as a CSV file.</p>
+            </div>
+            <button id="exportBtn" class="secondary-btn compact" type="button">Export CSV</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <h3>Back up data</h3>
+              <p>Download a complete JSON backup, including budgets.</p>
+            </div>
+            <button id="backupBtn" class="secondary-btn compact" type="button">Backup</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <h3>Restore data</h3>
+              <p>Restore a backup previously downloaded from this app.</p>
+            </div>
+            <label class="secondary-btn compact file-btn">Restore<input id="restoreInput" type="file" accept="application/json" /></label>
+          </div>
+        </section>
+
+        <section class="card danger-card">
+          <h3>Clear all data</h3>
+          <p>This permanently removes the expenses and budgets stored on this device.</p>
+          <button id="clearAllBtn" class="danger-btn" type="button">Clear all data</button>
+        </section>
+
+        <section class="card help-card">
+          <h3>Add to your phone</h3>
+          <p><strong>iPhone:</strong> open the site in Safari → Share → Add to Home Screen.</p>
+          <p><strong>Android:</strong> open the site in Chrome → menu → Add to Home screen / Install app.</p>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+      <button class="nav-btn active" data-view="homeView" type="button"><span>⌂</span><small>Home</small></button>
+      <button class="nav-btn" data-view="historyView" type="button"><span>≡</span><small>History</small></button>
+      <button class="nav-btn" data-view="budgetsView" type="button"><span>$</span><small>Budgets</small></button>
+      <button class="nav-btn" data-view="settingsView" type="button"><span>⚙</span><small>Settings</small></button>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
